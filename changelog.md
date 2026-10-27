@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.2] 27.10.2026
+
+### Added
+
+- Unit test for sending single package to server
+
 ## [0.0.1] 27.10.2026
 
 ### Added

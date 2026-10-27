@@ -34,8 +34,13 @@ func handleECGConnection(w http.ResponseWriter, r *http.Request) {
 	for {
 		messageType, payload, err := ws.ReadMessage()
 		if err != nil {
-			log.Println("Klient rozłączył się lub wystąpił błąd odczytu:", err)
-			break
+			// websocket.IsUnexpectedCloseError zwraca "true", jeśli błąd NIE JEST żadnym z wymienionych (1000 lub 1001 lub 3000 (closed by user)).
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, 3000) {
+				log.Printf("Błąd odczytu paczki EKG (Zerwane połączenie?): %v", err)
+			} else {
+				log.Println("Klient poprawnie i elegancko zakończył połączenie.")
+			}
+			break // Niezależnie czy to błąd, czy normalne wyjście, przerywamy pętlę, co zamyka połączenie (defer)
 		}
 
 		fmt.Printf("Otrzymano paczkę EKG (%d bajtów): %s\n", len(payload), string(payload))
