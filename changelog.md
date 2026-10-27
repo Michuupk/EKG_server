@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.1] 27.10.2026
+
+### Added
+
+- structure for server files
+- package with websocket configurations
+- simple AI made websocket server
+
 ## [0.0.0] 08.10.2026
 
 ### Created
