@@ -1,0 +1,3 @@
+[submodule "ECG_device_simulator"]
+	path = ECG_device_simulator
+	url = .\\ECG_device_simulator\\
