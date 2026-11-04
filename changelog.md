@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.3] 04.11.2026
+
+### Added
+
+- Unit tests for ECG Package that will be sent into server
+
+### Deleted
+
+- Old logic for sake of TDD
+
 ## [0.0.2] 27.10.2026
 
 ### Added
