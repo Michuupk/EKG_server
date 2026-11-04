@@ -1,8 +1,12 @@
 package main
 
-func MonitorBPM(bpmChan <-chan int, resultChan chan<- bool) {
-	for bpm := range bpmChan {
-		if bpm < 40 || bpm > 180 {
+func ProcessECGPacket() {
+
+}
+
+func MonitorBPM(bpmChan <-chan FHIRBPMObservation, resultChan chan<- bool) {
+	for obs := range bpmChan {
+		if obs.ValueQuantity.Value < 40 || obs.ValueQuantity.Value > 180 {
 			resultChan <- true
 		} else {
 			resultChan <- false
