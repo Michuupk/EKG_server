@@ -4,68 +4,47 @@ import (
 	"testing"
 )
 
-func TestMonitorBPM(t *testing.T) {
+func TestProcessPacket(t *testing.T) {
 	tests := []struct {
-		name        string
-		observation FHIRBPMObservation
-		want        bool
+		name    string
+		packet  ECGPacket // Używamy gotowej struktury z models.go
+		wantErr bool
 	}{
 		{
-			"Prawidłowe tętno FHIR",
-			FHIRBPMObservation{
-				ResourceType: "Observation",
-				Status:       "final",
-				Code: BPMCodedConcept{
-					Text: "Heart rate",
-				},
-				ValueQuantity: BPMQuantity{
-					Value: 75,
-					Unit:  "beats/minute",
-				},
+			"Prawidłowe wartości",
+			ECGPacket{
+				DeviceID:   "DEV-ESP32-01",
+				Seq:        100,
+				Packet:     []float64{0.12, 0.15, 0.85, -0.05},
+				PatientID:  "PACJENT-999",
+				IsBuffered: false,
 			},
-			false},
+			false,
+		},
 		{
-			"Tachykardia FHIR",
-			FHIRBPMObservation{
-				ResourceType: "Observation",
-				Status:       "final",
-				Code: BPMCodedConcept{
-					Text: "Heart rate",
-				},
-				ValueQuantity: BPMQuantity{
-					Value: 190,
-					Unit:  "beats/minute",
-				},
+			"Sygnał BPM poza wartością",
+			ECGPacket{
+				DeviceID:   "DEV-ESP32-01",
+				Seq:        100,
+				Packet:     []float64{10000.12, 0.15, 0.85, -0.05},
+				PatientID:  "PACJENT-999",
+				IsBuffered: false,
 			},
-			true},
-		{
-			"Bradykardia FHIR",
-			FHIRBPMObservation{
-				ResourceType: "Observation",
-				Status:       "final",
-				Code: BPMCodedConcept{
-					Text: "Heart rate",
-				},
-				ValueQuantity: BPMQuantity{
-					Value: 35,
-					Unit:  "beats/minute",
-				},
-			},
-			true},
+			true,
+		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bpmChan := make(chan FHIRBPMObservation)
+			bpmChan := make(chan ECGPacket)
 			resultChan := make(chan bool)
 
 			go MonitorBPM(bpmChan, resultChan)
 
-			bpmChan <- tt.observation
+			bpmChan <- tt.packet
 
 			got := <-resultChan
-			if got != tt.want {
-				t.Errorf("MonitorBPM() zgłosił = %v, oczekiwano = %v", got, tt.want)
+			if got != tt.wantErr {
+				t.Errorf("MonitorBPM() zgłosił = %v, oczekiwano = %v", got, tt.wantErr)
 			}
 
 			close(bpmChan)

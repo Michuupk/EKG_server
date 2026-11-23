@@ -1,68 +1,51 @@
-package main_test
+package main
 
-import (
-	main "ekg_server/cmd/server"
-	"testing"
-)
+import "testing"
 
 func TestECGPacket_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		packet  main.ECGPacket
+		packet  ECGPacket
 		wantErr bool
 	}{
 		{
-			name: "Poprawna paczka z ESP32 (surowe próbki AD8232)",
-			packet: main.ECGPacket{
-				DeviceID:       "ESP32-DEV-01",
-				PatientID:      "PAT-10203",
-				SequenceNumber: 1,
-				Timestamp:      1700000000,
-				Samples:        []float64{0.12, 0.15, 0.28, -0.05},
+			name: "Poprawna paczka danych",
+			packet: ECGPacket{
+				DeviceID:   "DEV-ESP32-01",
+				Seq:        100,
+				Packet:     []float64{0.12, 0.15, 0.85, -0.05},
+				PatientID:  "PACJENT-999",
+				IsBuffered: false,
 			},
 			wantErr: false,
 		},
 		{
 			name: "Brak device_id",
-			packet: main.ECGPacket{
-				DeviceID:       "",
-				PatientID:      "PAT-10203",
-				SequenceNumber: 1,
-				Timestamp:      1700000000,
-				Samples:        []float64{0.12},
+			packet: ECGPacket{
+				DeviceID:  "",
+				Seq:       101,
+				Packet:    []float64{0.12},
+				PatientID: "PACJENT-999",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Brak patient_id",
-			packet: main.ECGPacket{
-				DeviceID:       "ESP32-DEV-01",
-				PatientID:      "",
-				SequenceNumber: 1,
-				Timestamp:      1700000000,
-				Samples:        []float64{0.12},
+			packet: ECGPacket{
+				DeviceID:  "DEV-ESP32-01",
+				Seq:       102,
+				Packet:    []float64{0.12},
+				PatientID: "",
 			},
 			wantErr: true,
 		},
 		{
-			name: "Nieprawidłowy timestamp (<= 0)",
-			packet: main.ECGPacket{
-				DeviceID:       "ESP32-DEV-01",
-				PatientID:      "PAT-10203",
-				SequenceNumber: 1,
-				Timestamp:      0,
-				Samples:        []float64{0.12},
-			},
-			wantErr: true,
-		},
-		{
-			name: "Pusta tablica próbek (brak sygnału)",
-			packet: main.ECGPacket{
-				DeviceID:       "ESP32-DEV-01",
-				PatientID:      "PAT-10203",
-				SequenceNumber: 1,
-				Timestamp:      1700000000,
-				Samples:        []float64{},
+			name: "Pusta tablica próbek EKG",
+			packet: ECGPacket{
+				DeviceID:  "DEV-ESP32-01",
+				Seq:       103,
+				Packet:    []float64{}, // len(Packet) == 0
+				PatientID: "PACJENT-999",
 			},
 			wantErr: true,
 		},
@@ -70,9 +53,9 @@ func TestECGPacket_Validate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotErr := tt.packet.Validate()
-			if (gotErr != nil) != tt.wantErr {
-				t.Errorf("Validate() error = %v, wantErr %v", gotErr, tt.wantErr)
+			err := tt.packet.Validate()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

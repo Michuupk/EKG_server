@@ -1,16 +1,18 @@
 package main
 
-func ProcessECGPacket() {
-
+func ProcessECGPacket(packet ECGPacket) bool {
+	for _, val := range packet.Packet {
+		if val > 180.0 { // Przykładowy próg wartości sygnału
+			return true
+		}
+	}
+	return false
 }
 
-func MonitorBPM(bpmChan <-chan FHIRBPMObservation, resultChan chan<- bool) {
-	for obs := range bpmChan {
-		if obs.ValueQuantity.Value < 40 || obs.ValueQuantity.Value > 180 {
-			resultChan <- true
-		} else {
-			resultChan <- false
-		}
+func MonitorBPM(packetChan <-chan ECGPacket, resultChan chan<- bool) {
+	for packet := range packetChan {
+		hasAnomaly := ProcessECGPacket(packet)
+		resultChan <- hasAnomaly
 	}
 }
 
