@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.4] 28.11.2026
+
+### Done
+
+- internal/ecg_processor
+
+### Modified
+
+- Changed the organization of files
+- Adapted values for AD8232
+- Full unit test coverage
+
 ## [0.0.3] 04.11.2026
 
 ### Added
